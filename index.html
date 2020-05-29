@@ -1,43 +1,130 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <title>Koch Corp</title>
-    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+	<title>Materias</title>
+	<meta charset="utf-8">
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.10.1/Sortable.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
 </head>
-<body class="vh-100 bg-dark">
+<body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#"><img src="src/img/Logo_Naranja.png" width="60px"></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-      
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Inicio <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Acerca de nosotros</a>
-            </li>
-          </ul>
-    
-        </div>
-      </nav>
+	<div id="app" class="container my-3">
+		<h3>Materias</h3>
+		<div class="form-group d-flex">
+			<select class="form-control" v-model="materia_seleccionada">
+				<option value="-1" selected disabled hidden>Elegir materia</option>
+				<option v-for="(materia, index) in materias" :value="index">
+					{{ materia }}
+				</option>
+			</select>
+			<button class="btn btn-primary col-3 ml-3" data-toggle="modal" data-target="#agregarMateria">Nueva materia</button>
+		</div>
+		<hr>
+		<div v-if="materia_seleccionada >= 0">
+			<h3>Contenido: {{ materias[materia_seleccionada] }}</h3>
+			<div class="form-group">
+				<button class="btn btn-success btn-block" data-toggle="modal" data-target="#agregarTema">Nuevo tema</button>
+			</div>
+			<div class="form-group d-flex">
+				<input v-on:keyup="abrir_collapses" v-model="buscar" class="form-control" placeholder="Buscar...">
+				<button class="btn btn-danger ml-3 col-4" v-on:click="buscar=''; abrir_collapses()">Borrar</button>
+			</div>
+			<div>
+				<div class="accordion" id="accordionExample">
+					<div class="card" v-for="(tema, index) in temas_materias[materia_seleccionada]" v-if="temas_materias[materia_seleccionada][index].toLowerCase().includes(buscar.toLowerCase()) || contenidos_temas[materia_seleccionada][index].toLowerCase().includes(buscar.toLowerCase())">
+					    <div class="card-header" id="headingOne" style="z-index: 0">
+					      <h2 class="mb-0">
+					        <div class="d-flex">
+					        	<button onclick="this.blur()" v-html="$options.filters.highlight(tema, buscar)" class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" :data-target="'#collapse'+index" aria-expanded="false" aria-controls="collapseOne">
+						          {{ tema }}
+						        </button>
+					        </div>
+					      </h2>
+					    </div>
+
+					    <div :id="'collapse'+index" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+					      <div class="card-body" v-html="$options.filters.highlight(contenidos_temas[materia_seleccionada][index], buscar)" >
+					       		{{ contenidos_temas[materia_seleccionada][index] }}
+					      </div>
+					    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- MODALES -->
+
+		<!-- Modal agregar materia-->
+			<div class="modal fade" id="agregarMateria" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			  <div class="modal-dialog">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalLabel">Agregar materia</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			        <div class="form-group">
+			        	<input v-on:keyup.enter="agregar_materia" v-model="nuevaMateria" class="form-control" placeholder="Nombre de la materia...">
+			        </div>
+			        <div class="form-group" id="alertaAgregarMateria">
+			        	
+			        </div>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+			        <button v-on:click="agregar_materia" type="button" class="btn btn-primary">Agregar</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+
+		<!-- Modal agregar materia-->
+			<div class="modal fade" id="agregarTema" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			  <div class="modal-dialog modal-xl">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalLabel">Agregar tema</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			      		<div class="form-group">
+			      			<input v-model="nuevoTemaTitulo" class="form-control" placeholder="Nombre del tema..." autocomplete="off">
+			      		</div>
+			      		<div class="form-group">
+			      			<textarea v-model="nuevoTemaContenido" class="form-control" placeholder="Contenido..." style="min-height: 150px;">
+			      				
+			      			</textarea>
+			      		</div>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+			        <button v-on:click="insertar_tema" type="button" class="btn btn-primary">Agregar</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
 
 
 
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center">
-                <img class="w-100" src="src/img/Infografia.png">
-            </div>
-        </div>
-    </div>
+
+
+	</div>
+
+
+
+
+
+<script type="text/javascript" src="js/app.js"></script>
 </body>
 </html>
