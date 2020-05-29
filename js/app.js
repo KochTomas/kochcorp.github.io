@@ -34,6 +34,12 @@ var app = new Vue({
 
 	},
 	methods: {
+		borrarDatos(){
+			localStorage.clear();
+			this.materias = [];
+			this.temas_materias = [];
+			this.contenidos_temas = [];
+		},
 		ingresarLocalStorage(){
 			localStorage.clear();
 			localStorage.setItem('materias', JSON.stringify(this.materias));
