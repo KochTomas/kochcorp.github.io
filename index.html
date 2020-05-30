@@ -24,16 +24,17 @@
 				</option>
 			</select>
 			<button class="btn btn-primary col-3 ml-3" data-toggle="modal" data-target="#agregarMateria">Nueva materia</button>
+			<button v-on:click="nuevoOrdenMaterias = materias" class="btn btn-secondary col-3 ml-3" data-toggle="modal" data-target="#configuracion">Configuración</button>
 		</div>
 		<hr>
 		<div v-if="materia_seleccionada >= 0">
 			<h3>Contenido: {{ materias[materia_seleccionada] }}</h3>
-			<div class="form-group">
-				<button class="btn btn-success btn-block" data-toggle="modal" data-target="#agregarTema">Nuevo tema</button>
-			</div>
-			<div class="form-group d-flex">
-				<input v-on:keyup="abrir_collapses" v-model="buscar" class="form-control" placeholder="Buscar...">
-				<button class="btn btn-danger ml-3 col-4" v-on:click="buscar=''; abrir_collapses()">Borrar</button>
+			<div class="form-group d-flex input-group">
+				<input aria-describedby="validatedInputGroupPrepend" v-on:keyup="abrir_collapses" v-model="buscar" class="form-control" placeholder="Buscar...">
+				<div class="input-group-prepend col-2 m-0 p-0">
+					<button class="input-group-text w-100 text-center" v-on:click="buscar=''; abrir_collapses()">Borrar</button>
+			     </div>
+			     <button class="btn btn-success ml-3 col-4" data-toggle="modal" data-target="#agregarTema">Nuevo tema</button>
 			</div>
 			<div>
 				<div class="accordion" id="accordionExample">
@@ -57,7 +58,8 @@
 				</div>
 			</div>
 		</div>
-		<button class="btn btn-danger btn-block mt-5" v-on:click="borrarDatos" v-if="materias.length > 0">Borrar TODOS los datos</button>
+		
+
 
 		<!-- MODALES -->
 
@@ -115,7 +117,54 @@
 			  </div>
 			</div>
 
-
+		<!-- Modal agregar materia-->
+			<div class="modal fade" id="configuracion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			  <div class="modal-dialog">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalLabel">Configuración</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			      		<div v-if="materias.length > 0">
+			      			<h4>Orden de las materias</h4>
+			      			<div class="accordion" id="accordionExample">
+							  <div class="card">
+							    <div class="card-header" id="headingOne">
+							      <h2 class="mb-0">
+							        <button onclick="this.blur()" class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+							          Materias
+							        </button>
+							      </h2>
+							    </div>
+							    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+							      <div class="card-body">
+							       		<draggable v-model="nuevoOrdenMaterias">
+										   <div class="card" v-for="(materia, index) in nuevoOrdenMaterias" :pos="index">
+										   		<div class="card-body">
+										   			{{ materia }}
+										   		</div>
+										   </div>
+										</draggable>
+							      </div>
+							    </div>
+							  </div>
+								  
+							</div>
+			      		</div>
+			      		<hr class="my-3" v-if="materias.length > 0">
+			      		<h4>Borrar datos</h4>
+			      		<button v-on:click="borrarDatos" class="btn btn-danger btn-block">Borrar todos los datos</button>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+			        <button data-toggle="tooltip" data-placement="top" title="Guardado" data-trigger='manual' id="btnGuardarConfiguracion" v-on:click="guardarConfiguracion" v-on:click="insertar_tema" type="button" class="btn btn-primary">Guardar</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
 
 
 

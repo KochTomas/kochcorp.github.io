@@ -31,14 +31,43 @@ var app = new Vue({
 		nuevaMateria: '',
 		nuevoTemaTitulo: '',
 		nuevoTemaContenido: '',
+		nuevoOrdenMaterias: [],
 
 	},
 	methods: {
+		guardarConfiguracion(){
+			var temas_respaldo = [];
+			for(var i = 0; i < this.temas_materias.length; i++){
+				temas_respaldo[i] = this.temas_materias[i].slice();
+			}
+			var contenidos_respaldo = [];
+			for(var i = 0; i < this.contenidos_temas.length; i++){
+				contenidos_respaldo[i] = this.contenidos_temas[i].slice();
+			}
+
+			for(var i = 0; i < this.nuevoOrdenMaterias.length; i++){
+				if(this.nuevoOrdenMaterias[i] != this.materias[i]){
+					for(var j = 0; j < this.materias.length; j++){
+						if(this.nuevoOrdenMaterias[i] == this.materias[j]){
+							this.temas_materias[i] = temas_respaldo[j];
+							this.contenidos_temas[i] = contenidos_respaldo[j];
+						}
+					}
+				}
+			}
+			this.materias = this.nuevoOrdenMaterias.slice();
+			this.ingresarLocalStorage();
+			$('#btnGuardarConfiguracion').tooltip('show');
+			setTimeout(() =>{
+				$('#btnGuardarConfiguracion').tooltip('hide');
+			}, 2000);
+		},
 		borrarDatos(){
 			localStorage.clear();
 			this.materias = [];
 			this.temas_materias = [];
 			this.contenidos_temas = [];
+			this.materia_seleccionada = -1;
 		},
 		ingresarLocalStorage(){
 			localStorage.clear();
