@@ -40,14 +40,16 @@ var app = new Vue({
 	methods: {
 		guardarEdicionTema(){
 			this.temas_materias[this.materia_seleccionada][this.tema_seleccionado] = this.editarTema;
-			this.contenidos_temas[this.materia_seleccionada][this.tema_seleccionado] = this.editarContenido.replace(/\n\r?/g, '<br />');
+			//this.contenidos_temas[this.materia_seleccionada][this.tema_seleccionado] = this.editarContenido.replace(/\n\r?/g, '<br />');
+			this.contenidos_temas[this.materia_seleccionada][this.tema_seleccionado] = CKEDITOR.instances.txtAreaEditarContenido.getData();
 			this.editarTema = '';
 			this.editarContenido = '';
 			this.ingresarLocalStorage();
 		},
 		configurarEdicionTema(){
 			this.editarTema = this.temas_materias[this.materia_seleccionada][this.tema_seleccionado]; 
-			this.editarContenido = this.contenidos_temas[this.materia_seleccionada][this.tema_seleccionado].replace(/<br\s*[\/]?>/gi, '\n');
+			//this.editarContenido = this.contenidos_temas[this.materia_seleccionada][this.tema_seleccionado].replace(/<br\s*[\/]?>/gi, '\n');
+			CKEDITOR.instances.txtAreaEditarContenido.setData(this.contenidos_temas[this.materia_seleccionada][this.tema_seleccionado].replace(/<br\s*[\/]?>/gi, '\n'));
 		},
 		eliminarTema(){
 			this.temas_materias[this.materia_seleccionada].splice(this.tema_seleccionado, 1);
@@ -132,7 +134,9 @@ var app = new Vue({
 		},
 		insertar_tema(){
 			this.temas_materias[this.materia_seleccionada].push(this.nuevoTemaTitulo);
-			this.contenidos_temas[this.materia_seleccionada].push(this.nuevoTemaContenido.replace(/\n\r?/g, '<br />'));
+			//this.contenidos_temas[this.materia_seleccionada].push(this.nuevoTemaContenido.replace(/\n\r?/g, '<br />'));
+			this.contenidos_temas[this.materia_seleccionada].push(CKEDITOR.instances.txtAreaNuevoContenido.getData());
+			CKEDITOR.instances.txtAreaNuevoContenido.setData('');
 			//Agregar al Local Storage
 			this.ingresarLocalStorage();
 			this.nuevoTemaTitulo = '';
