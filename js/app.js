@@ -25,6 +25,7 @@ var app = new Vue({
 	data: {
 		materias: materias_cargar,
 		materia_seleccionada: -1,
+		tema_seleccionado: -1,
 		temas_materias: temas_cargar,
 		contenidos_temas: contenidos_temas_cargar,
 		buscar: '',
@@ -32,9 +33,28 @@ var app = new Vue({
 		nuevoTemaTitulo: '',
 		nuevoTemaContenido: '',
 		nuevoOrdenMaterias: [],
+		editarTema: '',
+		editarContenido: '',
 
 	},
 	methods: {
+		guardarEdicionTema(){
+			this.temas_materias[this.materia_seleccionada][this.tema_seleccionado] = this.editarTema;
+			this.contenidos_temas[this.materia_seleccionada][this.tema_seleccionado] = this.editarContenido.replace(/\n\r?/g, '<br />');
+			this.editarTema = '';
+			this.editarContenido = '';
+			this.ingresarLocalStorage();
+		},
+		configurarEdicionTema(){
+			this.editarTema = this.temas_materias[this.materia_seleccionada][this.tema_seleccionado]; 
+			this.editarContenido = this.contenidos_temas[this.materia_seleccionada][this.tema_seleccionado].replace(/<br\s*[\/]?>/gi, '\n');
+		},
+		eliminarTema(){
+			this.temas_materias[this.materia_seleccionada].splice(this.tema_seleccionado, 1);
+			this.contenidos_temas[this.materia_seleccionada].splice(this.tema_seleccionado, 1);
+			this.tema_seleccionado = -1;
+			this.ingresarLocalStorage();
+		},
 		guardarConfiguracion(){
 			var temas_respaldo = [];
 			for(var i = 0; i < this.temas_materias.length; i++){
@@ -125,8 +145,11 @@ var app = new Vue({
 });
 Vue.filter('highlight', function(word, query){
 	if(query.length>0){
-		var check = new RegExp(query, "ig");
-	  	return word.toString().replace(check, function(matchedText,a,b){
+		
+		query2 = query.normalize('NFD').replace(/([aeio])\u0301|(u)[\u0301\u0308]/gi,"$1$2").normalize();
+     	word2 = word.normalize('NFD').replace(/([aeio])\u0301|(u)[\u0301\u0308]/gi,"$1$2").normalize();
+     	var check = new RegExp(query2, "ig");
+	  	return word2.toString().replace(check, function(matchedText,a,b){
 	  		
 	     	return ('<strong class="bg-warning">' + matchedText + '</strong>');
 	  	});

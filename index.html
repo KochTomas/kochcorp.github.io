@@ -39,12 +39,19 @@
 			<div>
 				<div class="accordion" id="accordionExample">
 					<div class="card" v-for="(tema, index) in temas_materias[materia_seleccionada]" v-if="temas_materias[materia_seleccionada][index].toLowerCase().includes(buscar.toLowerCase()) || contenidos_temas[materia_seleccionada][index].toLowerCase().includes(buscar.toLowerCase())">
-					    <div class="card-header" id="headingOne" style="z-index: 0">
+					    <div class="card-header" id="headingOne">
 					      <h2 class="mb-0">
 					        <div class="d-flex">
 					        	<button onclick="this.blur()" v-html="$options.filters.highlight(tema, buscar)" class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" :data-target="'#collapse'+index" aria-expanded="false" aria-controls="collapseOne">
 						          {{ tema }}
 						        </button>
+						        <div class="dropdown dropleft">
+								   <button type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="this.blur()" class="btn"><span>...</span></button>
+								  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+								    <button v-on:click="tema_seleccionado = index; configurarEdicionTema()" data-toggle="modal" data-target="#modalEditarTemaYContenido" class="dropdown-item" type="button">Editar</button>
+								    <button v-on:click="tema_seleccionado = index" data-toggle="modal" data-target="#modalEliminarTema" class="dropdown-item" type="button">Eliminar</button>
+								  </div>
+								</div>
 					        </div>
 					      </h2>
 					    </div>
@@ -117,7 +124,7 @@
 			  </div>
 			</div>
 
-		<!-- Modal agregar materia-->
+		<!-- Modal configuracion-->
 			<div class="modal fade" id="configuracion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 			  <div class="modal-dialog">
 			    <div class="modal-content">
@@ -156,11 +163,78 @@
 			      		</div>
 			      		<hr class="my-3" v-if="materias.length > 0">
 			      		<h4>Borrar datos</h4>
-			      		<button v-on:click="borrarDatos" class="btn btn-danger btn-block">Borrar todos los datos</button>
+			      		<button data-toggle="modal" data-target="#modalEliminarDatos" class="btn btn-danger btn-block">Borrar todos los datos</button>
 			      </div>
 			      <div class="modal-footer">
 			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
 			        <button data-toggle="tooltip" data-placement="top" title="Guardado" data-trigger='manual' id="btnGuardarConfiguracion" v-on:click="guardarConfiguracion" v-on:click="insertar_tema" type="button" class="btn btn-primary">Guardar</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+			<!-- Modal eliminar tema-->
+			<div class="modal fade" id="modalEliminarTema" tabindex="-1" role="dialog" aria-labelledby="modalEliminarTema" aria-hidden="true">
+			  <div class="modal-dialog">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalLabel">Eliminar tema</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			      		<p>¿Estas seguro que quieres eliminar el tema <strong v-if="materia_seleccionada >= 0 && tema_seleccionado >= 0">{{ temas_materias[materia_seleccionada][tema_seleccionado] }}</strong>?</p>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+			        <button v-on:click="eliminarTema" data-dismiss="modal" type="button" class="btn btn-danger">Eliminar</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+			<!-- Modal eliminar datos-->
+			<div class="modal fade" id="modalEliminarDatos" tabindex="-1" role="dialog" aria-labelledby="modalEliminarTema" aria-hidden="true">
+			  <div class="modal-dialog">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalLabel">Eliminar tema</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			      		<p>¿Estas seguro que quieres eliminar <strong>todos los datos</strong>?</p>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+			        <button v-on:click="borrarDatos" data-dismiss="modal" type="button" class="btn btn-danger">Eliminar</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+			<!-- Modal editar tema y contenido-->
+			<div class="modal fade" id="modalEditarTemaYContenido" tabindex="-1" role="dialog" aria-labelledby="modalEliminarTema" aria-hidden="true">
+			  <div class="modal-dialog modal-xl">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalLabel">Editar tema y contenido</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			      		<div class="form-group">
+			      			<input v-model="editarTema" class="form-control" placeholder="Nombre del tema..." autocomplete="off">
+			      		</div>
+			      		<div class="form-group">
+			      			<textarea v-model="editarContenido" class="form-control" placeholder="Contenido..." style="min-height: 150px;">
+			      				
+			      			</textarea>
+			      		</div>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+			        <button v-on:click="guardarEdicionTema" data-dismiss="modal" type="button" class="btn btn-primary">Editar</button>
 			      </div>
 			    </div>
 			  </div>
