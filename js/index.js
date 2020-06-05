@@ -1,7 +1,7 @@
 
 
 
-var columnas_inicio = ['Nombre', 'Apellido', 'DNI'];
+var columnas_inicio = [];
 
 
 var vue = new Vue({
