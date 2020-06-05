@@ -12,7 +12,7 @@ var vue = new Vue({
 		nombreTabla: 'Usuarios',
 		nuevaColumna: '',
 		columnas: columnas_inicio,
-		filas: [['Tomás', 'Koch', '39204584'], ['Aimara', 'Villegas', '38410695'], ['Emiliano', 'Jerez', '3900193'], ['Cospi', 'Roldan', '38948139']],
+		filas: [],
 		filaNueva: [],
 		filaEditar: [],
 		nuevoOrdenColumnas: []
