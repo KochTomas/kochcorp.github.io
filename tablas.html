@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Tablas</title>
+	<meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8">
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous"></script>
+	
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.10.1/Sortable.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
+
+
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+</head>
+<body class="bg-light">
+
+	<div id="app">
+
+		<div class="container mt-5">
+			<a class="btn btn-link" href="index.html">Materias</a>
+			<hr>
+
+
+			<div class="card" v-if="nombreTabla.length == 0">
+				<div class="card-body">
+					<h3>Nombre de la tabla</h3>
+					<div class="form-group d-flex">
+						<input v-on:keyup.enter="crearTabla" v-model="escribirNombre" class="form-control" placeholder="Nombre de la tabla..." autocomplete="off">
+						<button v-on:click="crearTabla" class="btn btn-primary ml-3 col-lg-6">Crear tabla</button>
+					</div>
+				</div>
+			</div>
+			
+			<div class="card" v-if="nombreTabla.length > 0">
+				<div class="card-body">
+					<h3>Columnas</h3>
+					<div class="form-group d-flex">
+						<input v-model="nuevaColumna" v-on:keyup.enter="agregarColumna" class="form-control" placeholder="Nueva columna" autocomplete="off">
+						<button v-on:click="agregarColumna" class="btn btn-primary ml-3 col-lg-3">Agregar columna</button>
+						<button v-on:click="acomodarAntesDeOrdenar" data-toggle="modal" data-target="#editarOrdenColumna" class="btn btn-secondary col-lg-3 ml-2" v-if="columnas.length > 0">Editar orden</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="card my-3" v-if="columnas.length > 0">
+				<div class="card-body">
+					<h3>Filas</h3>
+					<div class="form-group">
+						<button data-toggle="modal" data-target="#agregarFila" class="btn btn-success btn-block">Agregar fila</button>
+					</div>
+				</div>	
+			</div>
+		
+
+			<div class="card" v-if="columnas.length > 0">
+				<div class="card-body">
+					<h3> {{ nombreTabla }} </h3>
+					<table class="table table-hover" id="mainTable">
+						<thead class="thead-light">
+							<tr id="sortableTable">
+								<th v-for="(columna, index) in columnas">
+									<button type="button" class="btn btn-link" data-toggle="popover">{{ columna }}</button>
+								</th>
+								<th class="text-primary">Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(fila, index) in filas">
+								<td v-for="(filaFila, index2) in fila">
+									{{ filaFila }}
+								</td>
+								<td class="d-flex">
+									<button v-on:click="modalSeleccionarFila(index)" data-toggle="modal" data-target="#editarFila" class="btn btn-primary">Editar</button>
+									<button v-on:click="modalSeleccionarFila(index)" data-toggle="modal" data-target="#eliminarFila" class="btn btn-danger ml-2">Eliminar</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="card my-3" v-if="columnas.length > 0">
+				<div class="card-body">
+					<h3>Excel</h3>
+					<div class="form-group">
+						<button v-on:click="exportarTabla()" class="btn btn-success btn-block">Generar excel</button>
+					</div>
+				</div>
+			</div>
+
+
+
+
+				<!-- Modal agregar fila -->
+				<div class="modal fade" id="agregarFila" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				  <div class="modal-dialog">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h5 class="modal-title" id="exampleModalLabel">Agregar fila</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+				      </div>
+				      <div class="modal-body">
+				      	<!-- MODAL CONTENT -->
+				        <div class="card mb-3" v-for="(columna, index) in columnas">
+				        	<div class="card-body">
+				        		<h4>{{ columna }}</h4>
+				        		<div class="form-group">
+				        			<input v-on:keyup.enter="agregarFila" v-model="filaNueva[index]" class="form-control" placeholder="..." autocomplete="off">
+				        		</div>
+				        	</div>
+				        </div>
+				        <!-- END MODAL CONTENT -->
+				      </div>
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+				        <button v-on:click="agregarFila" type="button" class="btn btn-primary">Agregar</button>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+				<!-- Modal eliminar fila-->
+				<div class="modal fade" id="eliminarFila" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				  <div class="modal-dialog">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h5 class="modal-title" id="exampleModalLabel">Eliminar</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+				      </div>
+				      <div class="modal-body">
+				        ¿Quieres eliminar la fila?
+				      </div>
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+				        <button v-on:click="eliminarFila" data-dismiss="modal" type="button" class="btn btn-danger">Eliminar</button>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+				<!-- Modal editar fila-->
+				<div class="modal fade" id="editarFila" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				  <div class="modal-dialog">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h5 class="modal-title" id="exampleModalLabel">Editar</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+				      </div>
+				      <div class="modal-body">
+				      	<div class="card mb-2" v-for="(columna, index) in filas[filaSeleccionada]">
+				      		<div class="card-body">
+				      			<h4> {{columnas[index]}} </h4>
+				      			<div class="form-group">
+				      				<input v-on:keyup.enter="editarFila()" v-model="filaEditar[index]" class="form-control" placeholder="..." autocomplete="off">
+				      			</div>
+				      		</div>
+				      	</div>
+				      </div>
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+				        <button v-on:click="editarFila()" data-dismiss="modal" type="button" class="btn btn-primary">Editar</button>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+				<!-- Modal editar orden-->
+				<div class="modal fade" id="editarOrdenColumna" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				  <div class="modal-dialog">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h5 class="modal-title" id="exampleModalLabel">Editar orden</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+				      </div>
+				      <div class="modal-body">
+
+				      	<draggable v-model="nuevoOrdenColumnas">
+						   <div class="card" v-for="(column, index) in nuevoOrdenColumnas" :pos="index">
+						   		<div class="card-body">
+						   			{{ column }}
+						   		</div>
+						   </div>
+						</draggable>
+
+				      </div>
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+				        <button v-on:click="guardarOrdenColumna" type="button" class="btn btn-primary">Guardar</button>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+		</div>
+	</div>
+
+
+<script src="js/tableToExcel.js" type="text/javascript"></script>
+<script src="js/index.js" type="text/javascript"></script>
+<script type="text/javascript">
+	$(document).ready( () =>{
+		$("[data-toggle=popover]").popover({
+			placement: 'bottom',
+        	html: true,
+        	title : 'Editar',
+        	content : `	<input class="form-control" placehorder="Columna...">
+        				<button class="btn btn-primary">Guardar</button>
+        	`
+		});
+		$('#divEditarOrdenColumna').sortable();
+	})
+</script>
+</body>
+</html>

@@ -152,10 +152,10 @@ Vue.filter('highlight', function(word, query){
 		
 		query2 = query.normalize('NFD').replace(/([aeio])\u0301|(u)[\u0301\u0308]/gi,"$1$2").normalize();
      	word2 = word.normalize('NFD').replace(/([aeio])\u0301|(u)[\u0301\u0308]/gi,"$1$2").normalize();
+     	word2 = word2.replace(/<[^>]*>/g,'');
      	var check = new RegExp(query2, "ig");
 	  	return word2.toString().replace(check, function(matchedText,a,b){
-	  		
-	     	return ('<strong class="bg-warning">' + matchedText + '</strong>');
+	  		return ('<strong class="bg-warning">' + matchedText + '</strong>');
 	  	});
 	  }else{
 	  	return word;
